@@ -168,16 +168,43 @@ var IssueAdd = function (_React$Component4) {
   function IssueAdd() {
     _classCallCheck(this, IssueAdd);
 
-    return _possibleConstructorReturn(this, (IssueAdd.__proto__ || Object.getPrototypeOf(IssueAdd)).apply(this, arguments));
+    var _this4 = _possibleConstructorReturn(this, (IssueAdd.__proto__ || Object.getPrototypeOf(IssueAdd)).call(this));
+
+    _this4.handleSubmit = _this4.handleSubmit.bind(_this4);
+    return _this4;
   }
 
   _createClass(IssueAdd, [{
+    key: 'handleSubmit',
+    value: function handleSubmit(e) {
+      e.preventDefault();
+      var form = document.forms.issueAdd;
+      this.props.createIssue({
+        owner: form.owner.value,
+        title: form.title.value,
+        status: 'New',
+        created: new Date()
+      });
+      //clear the form from the next input
+      form.owner.value = "";form.title.value = "";
+    }
+  }, {
     key: 'render',
     value: function render() {
       return React.createElement(
         'div',
         null,
-        ' This is a placeholder for an add issue entry form'
+        React.createElement(
+          'form',
+          { name: 'issueAdd', onSubmit: this.handleSubmit },
+          React.createElement('input', { type: 'text', name: 'owner', placeholder: 'Owner' }),
+          React.createElement('input', { type: 'text', name: 'title', placeholder: 'Title' }),
+          React.createElement(
+            'button',
+            null,
+            'Add'
+          )
+        )
       );
     }
   }]);
@@ -204,26 +231,43 @@ var IssueList = function (_React$Component5) {
 
     var _this5 = _possibleConstructorReturn(this, (IssueList.__proto__ || Object.getPrototypeOf(IssueList)).call(this));
 
-    _this5.state = { issues: issues };
-    setTimeout(_this5.createTestIssue.bind(_this5), 2000);
+    _this5.state = { issues: [] }; //state initialization
+    //this.createTestIssue = this.createTestIssue.bind(this);
+    //setTimeout(this.createTestIssue, 2000);
+    _this5.createIssue = _this5.createIssue.bind(_this5);
     return _this5;
   }
 
   _createClass(IssueList, [{
-    key: 'createIssue',
-    value: function createIssue(newIssue) {
-      var newIssues = this.state.issues.slice();
-      newIssue.id = this.state.issues.length + 1;
-      newIssues.push(newIssue);
-      this.setState({ issues: newIssues });
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.loadData();
     }
   }, {
-    key: 'createTestIssue',
-    value: function createTestIssue() {
-      this.createIssue({
-        status: "new", owner: "pieta", created: new Date(), title: "completion date should be optional"
-      });
+    key: 'loadData',
+    value: function loadData() {
+      var _this6 = this;
+
+      //uses the global issues list to set the state
+      setTimeout(function () {
+        _this6.setState({ issues: issues });
+      }, 500);
     }
+  }, {
+    key: 'createIssue',
+    value: function createIssue(newIssue) {
+      var newIssues = this.state.issues.slice(); //make a copy of the issues array in the state by calling slice()
+      newIssue.id = this.state.issues.length + 1;
+      newIssues.push(newIssue); // push the new issue to be created into the array
+      this.setState({ issues: newIssues }); //call this.setState with new array modifies state of the component
+    }
+    /*createTestIssue() {
+      this.createIssue({
+        status: "new", owner: "pieta", created: new Date(), title: "completion date should be optional",
+      })
+    }
+    */
+
   }, {
     key: 'render',
     value: function render() {
@@ -239,7 +283,7 @@ var IssueList = function (_React$Component5) {
         React.createElement('hr', null),
         React.createElement(IssueTables, { issues: this.state.issues }),
         React.createElement('hr', null),
-        React.createElement(IssueAdd, null)
+        React.createElement(IssueAdd, { createIssue: this.createIssue })
       );
     }
   }]);
